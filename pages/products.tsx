@@ -54,8 +54,7 @@ const Products: CustomNextPage = () => {
 
   //Set select data for search
   useEffect(() => {
-    setAutoCompleteOptions([]);
-    if (products) {
+    if (Array.isArray(products)) {
       products.map((prod) =>
         setAutoCompleteOptions((selectData) => [...selectData, prod.name])
       );
@@ -185,7 +184,7 @@ const Products: CustomNextPage = () => {
         sx={{ minHeight: products?.length === 0 ? "0px" : "150px" }}
       >
         <Grid grow gutter="sm" sx={{ height: "100%" }}>
-          {filteredProducts?.map((product) => {
+          {Array.isArray(filteredProducts) && filteredProducts.map((product) => {
             return (
               <Col
                 span={3}

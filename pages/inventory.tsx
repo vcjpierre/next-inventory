@@ -41,9 +41,10 @@ const Inventory: CustomNextPage = () => {
   >([]);
   const [autoCompleteValue, setAutoCompleteValue] =
     useState<ProductsWithDate["name"]>();
-  const [filteredProducts, setFilteredProducts] = useState<
-    ProductsWithDate[] | undefined
-  >([]);
+  // const [filteredProducts, setFilteredProducts] = useState<
+  //   ProductsWithDate[] | undefined
+  // >([]);
+  const [filteredProducts, setFilteredProducts] = useState<ProductsWithDate[] | undefined>([]);
   const [sortBy, setSortBy] = useState<
     "name" | "price" | "quantity" | null | string
   >("name");
@@ -51,10 +52,8 @@ const Inventory: CustomNextPage = () => {
   //Set select data for search
   useEffect(() => {
     setAutoCompleteOptions([]);
-    if (products) {
-      products.map((prod) =>
-        setAutoCompleteOptions((selectData) => [...selectData, prod.name])
-      );
+    if (Array.isArray(products)) {
+      products.map((prod) => setAutoCompleteOptions((selectData) => [...selectData, prod.name]));
     }
     setFilteredProducts(products);
   }, [products]);
@@ -163,113 +162,111 @@ const Inventory: CustomNextPage = () => {
         sx={{ minHeight: products?.length === 0 ? "0px" : "150px" }}
       >
         <Grid grow gutter='sm' sx={{ height: "100%" }}>
-          {filteredProducts?.map((product) => {
-            return (
-              <Col
-                span={3}
-                order={2}
-                orderSm={1}
-                orderLg={3}
-                key={product.id}
+          {Array.isArray(filteredProducts) && filteredProducts.map((product) => (
+            <Col
+              span={3}
+              order={2}
+              orderSm={1}
+              orderLg={3}
+              key={product.id}
+              sx={{
+                minWidth: "340px",
+                "@media (max-width: 350px)": {
+                  minWidth: "100%",
+                },
+              }}
+            >
+              <Paper
+                p='xl'
+                shadow={"lg"}
                 sx={{
-                  minWidth: "340px",
-                  "@media (max-width: 350px)": {
-                    minWidth: "100%",
-                  },
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
                 }}
               >
-                <Paper
-                  p='xl'
-                  shadow={"lg"}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "100%",
-                  }}
+                <Title order={3}>{product.name}</Title>
+                <Title
+                  order={5}
+                  weight='400'
+                  mb={"sm"}
+                  color='gray'
+                  variant='text'
+                  sx={(theme) => ({
+                    color:
+                      theme.colorScheme === "dark"
+                        ? theme.colors.dark[0]
+                        : theme.colors.gray[6],
+                  })}
                 >
-                  <Title order={3}>{product.name}</Title>
-                  <Title
-                    order={5}
-                    weight='400'
-                    mb={"sm"}
-                    color='gray'
-                    variant='text'
-                    sx={(theme) => ({
-                      color:
-                        theme.colorScheme === "dark"
-                          ? theme.colors.dark[0]
-                          : theme.colors.gray[6],
-                    })}
+                  {product.category.name}
+                </Title>
+                <Text
+                  sx={(theme) => ({
+                    color:
+                      theme.colorScheme === "dark"
+                        ? theme.colors.dark[1]
+                        : theme.colors.gray[9],
+                  })}
+                  mt={"sm"}
+                  mb={"sm"}
+                >
+                  {product.description}
+                </Text>
+                <Group
+                  spacing='md'
+                  noWrap
+                  mb='1.5rem'
+                  sx={{ height: "100%" }}
+                >
+                  <Stack sx={{ width: "100%", alignSelf: "flex-end" }}>
+                    <Text>Current Price</Text>
+                    <Text>{product.price}$</Text>
+                  </Stack>
+                  <Stack sx={{ width: "100%", alignSelf: "flex-end" }}>
+                    <Text>Current Stock</Text>
+                    <Text>
+                      {product?.date[0] ? product?.date[0]?.stock : "0"}
+                    </Text>
+                  </Stack>
+                </Group>
+                <Group>
+                  <Button
+                    onClick={() => {
+                      patchInventoryForm.setFieldValue(
+                        "productId",
+                        product.id
+                      );
+                      patchInventoryForm.setFieldValue(
+                        "stock",
+                        product.date[0]?.stock
+                      );
+                      setChangeCurrentInventoryModal(true);
+                    }}
                   >
-                    {product.category.name}
-                  </Title>
-                  <Text
-                    sx={(theme) => ({
-                      color:
-                        theme.colorScheme === "dark"
-                          ? theme.colors.dark[1]
-                          : theme.colors.gray[9],
-                    })}
-                    mt={"sm"}
-                    mb={"sm"}
+                    Change Current Inventory
+                  </Button>
+                  <Button
+                    color='violet'
+                    onClick={() => {
+                      setInvetoryChangesModal(true);
+                      setSelectedProduct(product);
+                      deleteInventoryForm.setFieldValue(
+                        "productId",
+                        product.id
+                      );
+                      deleteInventoryForm.setFieldValue(
+                        "id",
+                        product.date[0]?.id
+                      );
+                    }}
                   >
-                    {product.description}
-                  </Text>
-                  <Group
-                    spacing='md'
-                    noWrap
-                    mb='1.5rem'
-                    sx={{ height: "100%" }}
-                  >
-                    <Stack sx={{ width: "100%", alignSelf: "flex-end" }}>
-                      <Text>Current Price</Text>
-                      <Text>{product.price}$</Text>
-                    </Stack>
-                    <Stack sx={{ width: "100%", alignSelf: "flex-end" }}>
-                      <Text>Current Stock</Text>
-                      <Text>
-                        {product?.date[0] ? product?.date[0]?.stock : "0"}
-                      </Text>
-                    </Stack>
-                  </Group>
-                  <Group>
-                    <Button
-                      onClick={() => {
-                        patchInventoryForm.setFieldValue(
-                          "productId",
-                          product.id
-                        );
-                        patchInventoryForm.setFieldValue(
-                          "stock",
-                          product.date[0]?.stock
-                        );
-                        setChangeCurrentInventoryModal(true);
-                      }}
-                    >
-                      Change Current Inventory
-                    </Button>
-                    <Button
-                      color='violet'
-                      onClick={() => {
-                        setInvetoryChangesModal(true);
-                        setSelectedProduct(product);
-                        deleteInventoryForm.setFieldValue(
-                          "productId",
-                          product.id
-                        );
-                        deleteInventoryForm.setFieldValue(
-                          "id",
-                          product.date[0]?.id
-                        );
-                      }}
-                    >
-                      Invetory Changes
-                    </Button>
-                  </Group>
-                </Paper>
-              </Col>
-            );
-          })}
+                    Invetory Changes
+                  </Button>
+                </Group>
+              </Paper>
+            </Col>
+          ))}
         </Grid>
       </Skeleton>
       {/* MODAL */}

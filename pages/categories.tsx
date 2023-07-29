@@ -33,6 +33,7 @@ import { queryClient } from "./_app";
 
 const Categories: CustomNextPage = () => {
   const { data: categories, isLoading: categoriesLoading } = useGetCategories();
+  
   //ACCORDION VALUE
   const [value, setValue] = useState<string | null>(null);
   //SEARCH VALUE & DATA
@@ -48,7 +49,7 @@ const Categories: CustomNextPage = () => {
   //SET SELECT DATA FOR SEACH
   useEffect(() => {
     setSelectData([]);
-    if (categories) {
+    if (Array.isArray(categories)) {
       categories.map((ctg) =>
         setSelectData((selectData) => [...selectData, ctg.name])
       );
@@ -137,7 +138,7 @@ const Categories: CustomNextPage = () => {
         style={{ minHeight: "80px" }}
       >
         <Accordion value={value} onChange={setValue} transitionDuration={500}>
-          {filteredValues?.map((category: GetCategory, index) => (
+          {Array.isArray(filteredValues) && filteredValues.map((category: GetCategory, index) => (
             <Accordion.Item
               value={category.name}
               sx={{ overflowX: "auto" }}

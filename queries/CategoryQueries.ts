@@ -6,8 +6,13 @@ import { type PatchCategory } from "../types/patchCategory";
 import { type Category } from "@prisma/client";
 
 const getCategories = async (): Promise<GetCategory[]> => {
-  const { data } = await axios.get("/categories");
-  return data;
+  try {
+    const { data } = await axios.get("/categories");
+    return data;
+  } catch (error) {
+    console.error("Error in getCategories:", error);
+    throw error;
+  }
 };
 
 const getCategoriesId = async (): Promise<Category[]> => {
@@ -16,8 +21,12 @@ const getCategoriesId = async (): Promise<Category[]> => {
 };
 
 const postCategory = async (props: PostCategory) => {
-  const { data } = await axios.post("/category", props);
-  return data;
+  try {
+    const { data } = await axios.post("/category", props);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 const deleteCategory = async (id: string) => {

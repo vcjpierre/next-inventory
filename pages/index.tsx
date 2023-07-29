@@ -43,7 +43,7 @@ const Home: CustomNextPage = () => {
               maxWidth: "90%",
             }}
           >
-            {products?.map((product) => {
+            {Array.isArray(products) && products.map((product) => {
               return <LineChart product={product} key={product.id} colorsScheme={colorScheme} />;
             })}
           </Box>

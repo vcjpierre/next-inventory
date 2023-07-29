@@ -14,6 +14,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET
         ? process.env.GOOGLE_CLIENT_SECRET
         : "",
+      checks: ['none'],
     }),
   ],
 
