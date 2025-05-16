@@ -1,8 +1,8 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import type { NextAuthOptions } from "next-auth";
 import { prisma } from "../../../config/prisma";
+import type { NextAuthOptions } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -12,39 +12,32 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
   ],
-
   secret: process.env.NEXTAUTH_SECRET,
-
   session: {
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
+    strategy: "database",
+    maxAge: 30 * 24 * 60 * 60,
+    updateAge: 24 * 60 * 60,
   },
-
-  useSecureCookies: process.env.NODE_ENV === "production",
-
   pages: {
     signIn: "/auth/signin",
-  },
-
-  callbacks: {
+  },  callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
       return true;
     },
     async redirect({ url, baseUrl }) {
+      // Manejar URLs relativas
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      // Permitir callbacks a URLs en el mismo origen
+      else if (new URL(url).origin === baseUrl) return url;
+      // Redirigir a baseUrl en otros casos
       return baseUrl;
     },
     async session({ session, user }) {
-      if (session?.user) {
+      if (session.user) {
         session.user.id = user.id;
       }
       return session;
     },
-    async jwt({ token }) {
-      return token;
-    },
   },
-
-  debug: false,
 };
-
 export default NextAuth(authOptions);
