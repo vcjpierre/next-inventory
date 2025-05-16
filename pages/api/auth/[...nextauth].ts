@@ -29,15 +29,26 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/signin",
     error: "/auth/signin",
   },
-  debug: process.env.NODE_ENV === "development",
+  debug: true,
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
+      console.log("SignIn attempt:", { user, account });
       return true;
     },
     async redirect({ url, baseUrl }) {
-      if (url.startsWith(baseUrl)) return url;
-      // Manejar URLs relativas
-      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      console.log("Redirect attempt:", { url, baseUrl });
+      
+      if (url.startsWith(baseUrl)) {
+        console.log("Redirecting to URL in same origin:", url);
+        return url;
+      }
+      
+      if (url.startsWith('/')) {
+        console.log("Redirecting to relative URL:", `${baseUrl}${url}`);
+        return `${baseUrl}${url}`;
+      }
+      
+      console.log("Redirecting to baseUrl (default):", baseUrl);
       return baseUrl;
     },
     async session({ session, user }) {
