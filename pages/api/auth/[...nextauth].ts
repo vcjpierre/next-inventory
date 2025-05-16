@@ -10,6 +10,13 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
@@ -20,16 +27,17 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/signin",
-  },  callbacks: {
+    error: "/auth/signin",
+  },
+  debug: process.env.NODE_ENV === "development",
+  callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
       return true;
     },
     async redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) return url;
       // Manejar URLs relativas
       if (url.startsWith('/')) return `${baseUrl}${url}`;
-      // Permitir callbacks a URLs en el mismo origen
-      else if (new URL(url).origin === baseUrl) return url;
-      // Redirigir a baseUrl en otros casos
       return baseUrl;
     },
     async session({ session, user }) {

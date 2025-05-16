@@ -29,16 +29,37 @@ const Signin: CustomNextPage = ({ providers }: any) => {
           <Center key={provider.name} sx={{ width: "100vw", height: "100vh" }}>
             <Stack spacing='xl' sx={{ maxWidth: "400px", width: "100%" }}>
               <Title align='center'>Welcome to Invetory App ✋</Title>
-              
-              {error && (
-                <Alert color="red" title="Error de autenticación">
-                  {error === "Callback" ? "Error en la autenticación de Google. Por favor intente de nuevo." : error}
+                {error && (
+                <Alert color="red" title="Authentication error">
+                  {error === "Callback" 
+                    ? "Google authentication failed. Check server configuration and Google credentials." 
+                    : error === "OAuthSignin" 
+                      ? "Failed to start Google authentication. Please try again."
+                      : error === "OAuthCallback"
+                        ? "Callback process error. Verify redirect URLs."
+                        : error === "OAuthCreateAccount"
+                          ? "Failed to create account with Google."
+                          : error === "EmailCreateAccount"
+                            ? "Failed to create account with provided email."
+                            : error === "Verification"
+                              ? "Verification link expired or already used."
+                              : error === "AccessDenied"
+                                ? "Access denied. You don't have permission to sign in."
+                                : error === "Configuration"
+                                  ? "Server configuration problem."
+                                  : error
+                  }
                 </Alert>
               )}
-              
-              {provider.name === "Google" && (
+                {provider.name === "Google" && (
                 <Button
-                  onClick={() => signIn(provider.id, { callbackUrl: window.location.origin })}
+                  onClick={() => {
+                    console.log("Starting Google sign-in...");
+                    signIn(provider.id, { 
+                      callbackUrl: `${window.location.origin}/`,
+                      redirect: true
+                    });
+                  }}
                   size={"lg"}
                   sx={{ alignSelf: "center" }}
                 >
