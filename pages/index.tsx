@@ -1,7 +1,6 @@
 import Head from "next/head";
 import type { CustomNextPage } from "../types/CustomNextPage";
-import { Box, Group, ThemeIcon, Title } from "@mantine/core";
-import { AiOutlineHome } from "react-icons/ai";
+import { Box, Group, Title, Text } from "@mantine/core";
 import { LineChart } from "../components/LineChart";
 import { useGetProducts } from "../queries/ProductQueries";
 import { useMantineColorScheme } from "@mantine/core";
@@ -27,20 +26,34 @@ const Home: CustomNextPage = () => {
       </Head>
 
       <div>
-        {/* TITLE */}
-        <Group align="center" mb={"3rem"}>
-          <Title size="1.5rem" weight="500">
-            Latest Updated Products
+        <Box mb="xl">
+          <Text
+            size="xs"
+            color="dimmed"
+            sx={{ fontFamily: "JetBrains Mono, monospace", textTransform: "uppercase", letterSpacing: "0.05em" }}
+            mb={4}
+          >
+            Overview
+          </Text>
+          <Title
+            order={2}
+            sx={{
+              fontFamily: "Archivo, sans-serif",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Latest Products
           </Title>
-          <ThemeIcon variant="light" color="blue" size="md">
-            <AiOutlineHome size={22} />
-          </ThemeIcon>
-        </Group>
+        </Box>
 
         {!productsLoading && products && !productsRefetching && (
           <Box
             sx={{
-              maxWidth: "90%",
+              maxWidth: "100%",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1.5rem",
             }}
           >
             {Array.isArray(products) && products.map((product) => {

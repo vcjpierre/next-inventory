@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { CustomNextPage } from "../types/CustomNextPage";
 import {
   Group,
-  ThemeIcon,
   Title,
   Grid,
   Text,
@@ -10,7 +9,6 @@ import {
   Paper,
   Stack,
   Autocomplete,
-  Select,
   Button,
   Modal,
   NumberInput,
@@ -41,24 +39,23 @@ const Inventory: CustomNextPage = () => {
   >([]);
   const [autoCompleteValue, setAutoCompleteValue] =
     useState<ProductsWithDate["name"]>();
-  // const [filteredProducts, setFilteredProducts] = useState<
-  //   ProductsWithDate[] | undefined
-  // >([]);
-  const [filteredProducts, setFilteredProducts] = useState<ProductsWithDate[] | undefined>([]);
+  const [filteredProducts, setFilteredProducts] = useState<
+    ProductsWithDate[] | undefined
+  >([]);
   const [sortBy, setSortBy] = useState<
     "name" | "price" | "quantity" | null | string
   >("name");
 
-  //Set select data for search
   useEffect(() => {
     setAutoCompleteOptions([]);
     if (Array.isArray(products)) {
-      products.map((prod) => setAutoCompleteOptions((selectData) => [...selectData, prod.name]));
+      products.map((prod) =>
+        setAutoCompleteOptions((selectData) => [...selectData, prod.name])
+      );
     }
     setFilteredProducts(products);
   }, [products]);
 
-  //Filter Products by Name
   useEffect(() => {
     if (autoCompleteValue && products) {
       setFilteredProducts((products) =>
@@ -71,12 +68,10 @@ const Inventory: CustomNextPage = () => {
     }
   }, [autoCompleteValue, products, sortBy]);
 
-  //MODAL STATE
   const [changeCurrentInventoryModal, setChangeCurrentInventoryModal] =
     useState(false);
   const [invetoryChangesModal, setInvetoryChangesModal] = useState(false);
 
-  //FORM OF MODAL
   const patchInventoryForm = useForm({
     validate: zodResolver(PostDateSchema),
     initialValues: {
@@ -94,26 +89,34 @@ const Inventory: CustomNextPage = () => {
     },
   });
 
-  //Post Date Hook
   const { mutate: PostDate, isLoading: PostDateLoading } = usePostDate();
   const { mutate: DeleteDate, isLoading: DeleteDateLoading } = useDeleteDate();
 
-  //Dates of products with inventory
   const [selectedProduct, setSelectedProduct] = useState<ProductsWithDate>();
 
   return (
     <main>
-      {/* TITLE */}
-      <Group align='center' mb={"3rem"}>
-        <Title size='1.5rem' weight='500'>
+      <Box mb="xl">
+        <Text
+          size="xs"
+          color="dimmed"
+          sx={{ fontFamily: "JetBrains Mono, monospace", textTransform: "uppercase", letterSpacing: "0.05em" }}
+          mb={4}
+        >
+          Stock Control
+        </Text>
+        <Title
+          order={2}
+          sx={{
+            fontFamily: "Archivo, sans-serif",
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+          }}
+        >
           Your Inventory
         </Title>
-        <ThemeIcon variant='light' color='violet' size='md'>
-          <BsBox size={22} />
-        </ThemeIcon>
-      </Group>
+      </Box>
 
-      {/* SEARCH BAR */}
       <Group align='center' mb='1.5rem'>
         <Autocomplete
           data={autoCompleteOption}
@@ -127,25 +130,12 @@ const Inventory: CustomNextPage = () => {
           transitionTimingFunction='easeInOut'
           sx={{ maxWidth: "600px", width: "100%" }}
         />
-        {/* <Select
-          data={[
-            { value: "name", label: "Name" },
-            { value: "price", label: "Price" },
-            { value: "quantity", label: "Quantity" },
-          ]}
-          value={sortBy}
-          onChange={setSortBy}
-          placeholder="Sort By..."
-          icon={<FiSearch />}
-          sx={{ maxWidth: "200px", width: "100%" }}
-        /> */}
       </Group>
 
-      {/* NO INVETORY */}
       {products?.length === 0 && !productsLoading && (
         <Box>
           <Group align='center'>
-            <Text size={"lg"}>No Invetory</Text>
+            <Text size={"lg"}>No Inventory</Text>
             <BsBox size={20} style={{ transform: "translateY(-1.5px)" }} />
           </Group>
           <Link passHref href='/products'>
@@ -156,124 +146,129 @@ const Inventory: CustomNextPage = () => {
         </Box>
       )}
 
-      {/* PRODUCTS */}
       <Skeleton
         visible={productsLoading}
         sx={{ minHeight: products?.length === 0 ? "0px" : "150px" }}
       >
         <Grid grow gutter='sm' sx={{ height: "100%" }}>
-          {Array.isArray(filteredProducts) && filteredProducts.map((product) => (
-            <Col
-              span={3}
-              order={2}
-              orderSm={1}
-              orderLg={3}
-              key={product.id}
-              sx={{
-                minWidth: "340px",
-                "@media (max-width: 350px)": {
-                  minWidth: "100%",
-                },
-              }}
-            >
-              <Paper
-                p='xl'
-                shadow={"lg"}
+          {Array.isArray(filteredProducts) &&
+            filteredProducts.map((product) => (
+              <Col
+                span={3}
+                order={2}
+                orderSm={1}
+                orderLg={3}
+                key={product.id}
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  height: "100%",
+                  minWidth: "340px",
+                  "@media (max-width: 350px)": {
+                    minWidth: "100%",
+                  },
                 }}
               >
-                <Title order={3}>{product.name}</Title>
-                <Title
-                  order={5}
-                  weight='400'
-                  mb={"sm"}
-                  color='gray'
-                  variant='text'
-                  sx={(theme) => ({
-                    color:
-                      theme.colorScheme === "dark"
-                        ? theme.colors.dark[0]
-                        : theme.colors.gray[6],
-                  })}
+                <Paper
+                  p='xl'
+                  shadow='sm'
+                  withBorder
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%",
+                    backgroundColor: "var(--surface)",
+                    borderColor: "var(--border)",
+                  }}
                 >
-                  {product.category.name}
-                </Title>
-                <Text
-                  sx={(theme) => ({
-                    color:
-                      theme.colorScheme === "dark"
-                        ? theme.colors.dark[1]
-                        : theme.colors.gray[9],
-                  })}
-                  mt={"sm"}
-                  mb={"sm"}
-                >
-                  {product.description}
-                </Text>
-                <Group
-                  spacing='md'
-                  noWrap
-                  mb='1.5rem'
-                  sx={{ height: "100%" }}
-                >
-                  <Stack sx={{ width: "100%", alignSelf: "flex-end" }}>
-                    <Text>Current Price</Text>
-                    <Text>{product.price}$</Text>
-                  </Stack>
-                  <Stack sx={{ width: "100%", alignSelf: "flex-end" }}>
-                    <Text>Current Stock</Text>
-                    <Text>
-                      {product?.date[0] ? product?.date[0]?.stock : "0"}
-                    </Text>
-                  </Stack>
-                </Group>
-                <Group>
-                  <Button
-                    onClick={() => {
-                      patchInventoryForm.setFieldValue(
-                        "productId",
-                        product.id
-                      );
-                      patchInventoryForm.setFieldValue(
-                        "stock",
-                        product.date[0]?.stock
-                      );
-                      setChangeCurrentInventoryModal(true);
+                  <Title
+                    order={3}
+                    sx={{
+                      fontFamily: "Archivo, sans-serif",
+                      fontWeight: 700,
                     }}
                   >
-                    Change Current Inventory
-                  </Button>
-                  <Button
-                    color='violet'
-                    onClick={() => {
-                      setInvetoryChangesModal(true);
-                      setSelectedProduct(product);
-                      deleteInventoryForm.setFieldValue(
-                        "productId",
-                        product.id
-                      );
-                      deleteInventoryForm.setFieldValue(
-                        "id",
-                        product.date[0]?.id
-                      );
-                    }}
+                    {product.name}
+                  </Title>
+                  <Text
+                    size='sm'
+                    color='dimmed'
+                    mb='sm'
+                    sx={{ fontFamily: "JetBrains Mono, monospace" }}
                   >
-                    Invetory Changes
-                  </Button>
-                </Group>
-              </Paper>
-            </Col>
-          ))}
+                    {product.category.name}
+                  </Text>
+                  <Text
+                    size='sm'
+                    color='dimmed'
+                    mt='sm'
+                    mb='sm'
+                    lineClamp={2}
+                  >
+                    {product.description}
+                  </Text>
+                  <Group
+                    spacing='md'
+                    noWrap
+                    mb='1.5rem'
+                    sx={{ height: "100%" }}
+                  >
+                    <Stack sx={{ width: "100%", alignSelf: "flex-end" }} spacing={2}>
+                      <Text size='xs' color='dimmed'>Current Price</Text>
+                      <Text weight={600} sx={{ fontFamily: "JetBrains Mono, monospace" }}>
+                        ${product.price.toFixed(2)}
+                      </Text>
+                    </Stack>
+                    <Stack sx={{ width: "100%", alignSelf: "flex-end" }} spacing={2}>
+                      <Text size='xs' color='dimmed'>Current Stock</Text>
+                      <Text weight={600} sx={{ fontFamily: "JetBrains Mono, monospace" }}>
+                        {product?.date[0] ? product?.date[0]?.stock : "0"}
+                      </Text>
+                    </Stack>
+                  </Group>
+                  <Group>
+                    <Button
+                      size='sm'
+                      onClick={() => {
+                        patchInventoryForm.setFieldValue(
+                          "productId",
+                          product.id
+                        );
+                        patchInventoryForm.setFieldValue(
+                          "stock",
+                          product.date[0]?.stock
+                        );
+                        setChangeCurrentInventoryModal(true);
+                      }}
+                    >
+                      Update Stock
+                    </Button>
+                    <Button
+                      size='sm'
+                      variant='light'
+                      onClick={() => {
+                        setInvetoryChangesModal(true);
+                        setSelectedProduct(product);
+                        deleteInventoryForm.setFieldValue(
+                          "productId",
+                          product.id
+                        );
+                        deleteInventoryForm.setFieldValue(
+                          "id",
+                          product.date[0]?.id
+                        );
+                      }}
+                    >
+                      History
+                    </Button>
+                  </Group>
+                </Paper>
+              </Col>
+            ))}
         </Grid>
       </Skeleton>
-      {/* MODAL */}
+
       <Modal
         opened={changeCurrentInventoryModal}
         onClose={() => setChangeCurrentInventoryModal(false)}
-        title='Inventory Update Modal'
+        title='Update Inventory'
         centered
       >
         <form
@@ -310,82 +305,81 @@ const Inventory: CustomNextPage = () => {
             {...patchInventoryForm.getInputProps("date")}
           />
           <Group>
-            <Button color='blue' type='submit'>
-              Update Inventory
-            </Button>
+            <Button type='submit'>Save</Button>
             <Button
-              color='red'
+              variant='light'
               onClick={() => setChangeCurrentInventoryModal(false)}
             >
-              Exit
+              Cancel
             </Button>
           </Group>
         </form>
       </Modal>
 
-      {/* INVETORY DELETE CHANGES MODAL */}
       <Modal
         opened={invetoryChangesModal}
         onClose={() => setInvetoryChangesModal(false)}
-        title={`Latest ${selectedProduct?.date.length} invetory changes`}
+        title={`Latest ${selectedProduct?.date.length} inventory changes`}
         centered
         overflow='inside'
       >
         <Stack>
-          {selectedProduct?.date.map((date) => {
-            return (
-              <form
-                onSubmit={deleteInventoryForm.onSubmit((values) =>
-                  DeleteDate(
-                    {
-                      id: date.id,
-                      productId: values.productId,
+          {selectedProduct?.date.map((date) => (
+            <form
+              onSubmit={deleteInventoryForm.onSubmit((values) =>
+                DeleteDate(
+                  {
+                    id: date.id,
+                    productId: values.productId,
+                  },
+                  {
+                    onSuccess: () => {
+                      queryClient.invalidateQueries(["products"]);
+                      setInvetoryChangesModal(false);
                     },
-                    {
-                      onSuccess: () => {
-                        queryClient.invalidateQueries(["products"]);
-                        setInvetoryChangesModal(false);
-                      },
-                    }
-                  )
-                )}
-                key={date.id}
+                  }
+                )
+              )}
+              key={date.id}
+            >
+              <LoadingOverlay
+                visible={DeleteDateLoading}
+                transitionDuration={300}
+              />
+              <Paper
+                p='sm'
+                withBorder
+                sx={{
+                  backgroundColor: "transparent",
+                  borderColor: "var(--border)",
+                }}
               >
-                <LoadingOverlay
-                  visible={DeleteDateLoading}
-                  transitionDuration={300}
-                />
-                <Stack
-                  spacing='xs'
-                  pb='md'
-                  sx={(theme) => ({
-                    borderBottom:
-                      theme.colorScheme === "dark"
-                        ? `1px solid ${theme.colors.dark[2]}`
-                        : `1px solid ${theme.colors.gray[9]}`,
-                  })}
-                >
-                  <Group>
-                    <Text size='md'>
-                      Date: {DateTime.fromISO(date?.date as any).toISODate()}
-                    </Text>
-                    <Text size='md' weight='600'>
-                      Stock: {date.stock}
-                    </Text>
-                  </Group>
+                <Group position='apart' align='center'>
+                  <Text size='sm' sx={{ fontFamily: "JetBrains Mono, monospace" }}>
+                    {DateTime.fromISO(date?.date as any).toISODate()}
+                  </Text>
+                  <Text
+                    size='sm'
+                    weight={600}
+                    sx={{ fontFamily: "JetBrains Mono, monospace" }}
+                  >
+                    Stock: {date.stock}
+                  </Text>
                   <Button
                     color='red'
-                    type={"submit"}
-                    sx={{ width: "min-content" }}
+                    size='xs'
+                    type='submit'
                   >
                     Delete
                   </Button>
-                </Stack>
-              </form>
-            );
-          })}
+                </Group>
+              </Paper>
+            </form>
+          ))}
           {selectedProduct?.date.length === 0 && (
-            <Text>No inventory changes found</Text>
+            <Text color='dimmed' align='center'>
+              No inventory changes found
+            </Text>
           )}
         </Stack>
       </Modal>

@@ -3,7 +3,6 @@ import { CustomNextPage } from "../types/CustomNextPage";
 import {
   Title,
   Group,
-  ThemeIcon,
   Button,
   Box,
   Table,
@@ -14,6 +13,7 @@ import {
   Text,
   LoadingOverlay,
   Accordion,
+  Alert,
 } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
 import { BiCategory } from "react-icons/bi";
@@ -33,20 +33,15 @@ import { queryClient } from "./_app";
 
 const Categories: CustomNextPage = () => {
   const { data: categories, isLoading: categoriesLoading } = useGetCategories();
-  
-  //ACCORDION VALUE
+
   const [value, setValue] = useState<string | null>(null);
-  //SEARCH VALUE & DATA
   const [selectData, setSelectData] = useState<GetCategory["name"][]>([]);
   const [selectValue, setSelectValue] = useState<GetCategory["name"] | null>();
-  //FILTER VALUES
   const [filteredValues, setFilteredValues] = useState<GetCategory[]>();
-  //MODAL VALUES
   const [createModal, setCreateModal] = useState<boolean>(false);
   const [deleteModal, setDeleteModal] = useState<boolean>(false);
   const [changeModal, setChangeModal] = useState<boolean>(false);
 
-  //SET SELECT DATA FOR SEACH
   useEffect(() => {
     setSelectData([]);
     if (Array.isArray(categories)) {
@@ -56,7 +51,6 @@ const Categories: CustomNextPage = () => {
     }
   }, [categories]);
 
-  //FILTER THE DATA BY THE SELECTED VALUE
   useEffect(() => {
     if (selectValue) {
       setFilteredValues(categories?.filter((ctg) => ctg.name === selectValue));
@@ -65,10 +59,8 @@ const Categories: CustomNextPage = () => {
     }
   }, [selectValue, categories]);
 
-  //SELECTED CATEGORY ID
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-  //VALIDATE POST CATEGORY FORM
   const createCategoryForm = useForm({
     validate: zodResolver(PostCategorySchema),
     initialValues: {
@@ -80,7 +72,6 @@ const Categories: CustomNextPage = () => {
   const { mutate: deleteCategory, isLoading: deleteCategoryLoading } =
     useDeleteCategory();
 
-  //VALIDATE PATCH CATEGORY FORM
   const PatchCategoryForm = useForm({
     validate: zodResolver(PatchCategorySchema),
     initialValues: {
@@ -94,169 +85,183 @@ const Categories: CustomNextPage = () => {
 
   return (
     <main>
-      {/* TITLE */}
-      <Group align='center' mb={"3rem"}>
-        <Title size='1.5rem' weight='500'>
+      <Box mb="xl">
+        <Text
+          size="xs"
+          color="dimmed"
+          sx={{ fontFamily: "JetBrains Mono, monospace", textTransform: "uppercase", letterSpacing: "0.05em" }}
+          mb={4}
+        >
+          Organization
+        </Text>
+        <Title
+          order={2}
+          sx={{
+            fontFamily: "Archivo, sans-serif",
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+          }}
+        >
           Your Categories
         </Title>
-        <ThemeIcon variant='light' color='green' size='md'>
-          <BiCategory size={25} />
-        </ThemeIcon>
-      </Group>
+      </Box>
 
-      {/* SELECT COMPONENT */}
       <Select
         data={selectData}
         value={selectValue}
         onChange={setSelectValue}
         clearable
         searchable
-        placeholder='Seach Something...'
-        nothingFound='No Categories Found'
+        placeholder="Search Something..."
+        nothingFound="No Categories Found"
         icon={<FiSearch />}
-        transition='pop-top-left'
+        transition="pop-top-left"
         transitionDuration={80}
-        transitionTimingFunction='easeInOut'
+        transitionTimingFunction="easeInOut"
         sx={{ maxWidth: "600px" }}
-        mb='1.5rem'
+        mb="1.5rem"
       />
 
-      {/* NO CATEGORIES */}
       {categories?.length === 0 && !categoriesLoading && (
         <Box>
-          <Group align='center'>
-            <Text size={"lg"}>No Invetory</Text>
-            <FiSearch size={20} style={{ transform: "translateY(-1.5px)" }} />
+          <Group align="center">
+            <Text size={"lg"}>No Categories</Text>
+            <BiCategory size={20} style={{ transform: "translateY(-1.5px)" }} />
           </Group>
         </Box>
       )}
 
-      {/* ACCORDION FOR THE DATA */}
       <Skeleton
         mb={"3rem"}
         visible={categoriesLoading ? true : false}
         style={{ minHeight: "80px" }}
       >
         <Accordion value={value} onChange={setValue} transitionDuration={500}>
-          {Array.isArray(filteredValues) && filteredValues.map((category: GetCategory, index) => (
-            <Accordion.Item
-              value={category.name}
-              sx={{ overflowX: "auto" }}
-              key={index}
-            >
-              <Accordion.Control>{category.name}</Accordion.Control>
-              <Accordion.Panel
-                sx={{
-                  width: "max-content",
-                  minWidth: "100%",
-                }}
+          {Array.isArray(filteredValues) &&
+            filteredValues.map((category: GetCategory, index) => (
+              <Accordion.Item
+                value={category.name}
+                sx={{ overflowX: "auto" }}
+                key={index}
               >
-                <Table verticalSpacing='md' horizontalSpacing='md'>
-                  <thead>
-                    <tr>
-                      <th style={{ paddingLeft: "0" }}>Name</th>
-                      <th style={{ paddingLeft: "0" }}>Price</th>
-                      <th style={{ paddingLeft: "0" }}>Id</th>
-                      <th style={{ paddingLeft: "0" }}>Last Updated</th>
-                      <th style={{ paddingLeft: "0" }}>Stock</th>
-                    </tr>
-                  </thead>
+                <Accordion.Control>
+                  <Text weight={600}>{category.name}</Text>
+                </Accordion.Control>
+                <Accordion.Panel
+                  sx={{
+                    width: "max-content",
+                    minWidth: "100%",
+                  }}
+                >
+                  <Table verticalSpacing="md" horizontalSpacing="md">
+                    <thead>
+                      <tr>
+                        <th style={{ paddingLeft: "0" }}>Name</th>
+                        <th style={{ paddingLeft: "0" }}>Price</th>
+                        <th style={{ paddingLeft: "0" }}>ID</th>
+                        <th style={{ paddingLeft: "0" }}>Last Updated</th>
+                        <th style={{ paddingLeft: "0" }}>Stock</th>
+                      </tr>
+                    </thead>
 
-                  {category?.products?.map((product) => (
-                    <tr key={product.name}>
-                      <td>
-                        <div style={{ paddingRight: "1rem" }}>
-                          {product.name}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ paddingRight: "1rem" }}>
-                          {product.price}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ paddingRight: "1rem" }}>{product.id}</div>
-                      </td>
-                      <td>
-                        <div style={{ paddingRight: "1rem" }}>
-                          {product.lastUpdated.toString()}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ paddingRight: "1rem" }}>
-                          {product?.date[0]?.stock}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </Table>
-                <Group>
-                  <Button
-                    mt='1.5rem'
-                    color={"blue"}
-                    onClick={() => {
-                      PatchCategoryForm.values.name = category.name;
-                      setChangeModal(true);
-                      setSelectedCategory(category.id);
-                    }}
-                  >
-                    Change Details
-                  </Button>
-                  <Button
-                    mt='1.5rem'
-                    color={"red"}
-                    onClick={() => {
-                      setDeleteModal(true);
-                      setSelectedCategory(category.id);
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </Group>
-              </Accordion.Panel>
-            </Accordion.Item>
-          ))}
+                    {category?.products?.map((product) => (
+                      <tr key={product.name}>
+                        <td>
+                          <div style={{ paddingRight: "1rem" }}>
+                            {product.name}
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ paddingRight: "1rem" }}>
+                            <Text sx={{ fontFamily: "JetBrains Mono, monospace" }}>
+                              ${product.price.toFixed(2)}
+                            </Text>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ paddingRight: "1rem" }}>
+                            <Text size="xs" color="dimmed" sx={{ fontFamily: "JetBrains Mono, monospace" }}>
+                              {product.id.slice(0, 8)}...
+                            </Text>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ paddingRight: "1rem" }}>
+                            {product.lastUpdated.toString()}
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ paddingRight: "1rem" }}>
+                            <Text weight={600} sx={{ fontFamily: "JetBrains Mono, monospace" }}>
+                              {product?.date[0]?.stock ?? "0"}
+                            </Text>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </Table>
+                  <Group mt="md">
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        PatchCategoryForm.values.name = category.name;
+                        setChangeModal(true);
+                        setSelectedCategory(category.id);
+                      }}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="light"
+                      color="red"
+                      onClick={() => {
+                        setDeleteModal(true);
+                        setSelectedCategory(category.id);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </Group>
+                </Accordion.Panel>
+              </Accordion.Item>
+            ))}
         </Accordion>
       </Skeleton>
 
-      {/*ACTIONS FOR CATEGORIES  */}
       <Box>
         <Button
-          color={"blue"}
           variant={"outline"}
           onClick={() => setCreateModal(true)}
+          leftIcon={<BiCategory size={16} />}
         >
           Create Category
         </Button>
       </Box>
 
-      {/* MODALS */}
-      {/* CREATE CATEGORY */}
       <Modal
         centered
         opened={createModal}
         onClose={() => setCreateModal(false)}
-        title='Create Category'
+        title="New Category"
       >
         <form
-          onSubmit={createCategoryForm.onSubmit((values) =>
-            console.log(values)
-          )}
+          onSubmit={createCategoryForm.onSubmit((values) => console.log(values))}
         >
           <LoadingOverlay
             transitionDuration={500}
             visible={postCategoryLoading ? true : false}
           />
           <TextInput
-            placeholder='Category name'
-            label='Category name'
+            placeholder="Category name"
+            label="Category name"
             withAsterisk
-            mb='1rem'
+            mb="1rem"
             {...createCategoryForm.getInputProps("name")}
           />
-          <Group noWrap={false}>
+          <Group>
             <Button
-              type='submit'
+              type="submit"
               onClick={() =>
                 postCategory(
                   { name: createCategoryForm.values.name },
@@ -271,33 +276,33 @@ const Categories: CustomNextPage = () => {
             >
               Create
             </Button>
-            <Button color='red' onClick={() => setCreateModal(false)}>
-              Exit
+            <Button variant="light" onClick={() => setCreateModal(false)}>
+              Cancel
             </Button>
           </Group>
         </form>
       </Modal>
-      {/* DELETE CATEGORY */}
+
       <Modal
         centered
         opened={deleteModal}
         onClose={() => setDeleteModal(false)}
-        title='Delete Category'
+        title="Delete Category"
       >
-        <LoadingOverlay visible={deleteCategoryLoading ? true : false} />
-        <Group align='center' mb='1rem'>
-          <MdWarningAmber size={25} color='#fa5252' />
-          <Title color='red' size='md'>
-            You Cannot Undo This Action!
-          </Title>
-        </Group>
-        <Text mb='1rem' color='red' weight={600}>
-          All Products In This Category Will Be Deleted!
-        </Text>
-        <Group noWrap={false}>
-          <Button onClick={() => setDeleteModal(false)}>Exit</Button>
+        <Alert
+          icon={<MdWarningAmber size={20} />}
+          color="red"
+          mb="md"
+        >
+          <Text weight={600}>You cannot undo this action!</Text>
+          <Text size="sm">All products in this category will be deleted.</Text>
+        </Alert>
+        <Group>
+          <Button variant="light" onClick={() => setDeleteModal(false)}>
+            Cancel
+          </Button>
           <Button
-            color='red'
+            color="red"
             onClick={() =>
               deleteCategory(selectedCategory, {
                 onSuccess: () => {
@@ -307,16 +312,16 @@ const Categories: CustomNextPage = () => {
               })
             }
           >
-            Delete !
+            Delete Category
           </Button>
         </Group>
       </Modal>
-      {/* CHANGE DETAILS MODAL */}
+
       <Modal
         centered
         opened={changeModal}
         onClose={() => setChangeModal(false)}
-        title='Change Category Details'
+        title="Edit Category"
       >
         <form
           onSubmit={PatchCategoryForm.onSubmit((values) => console.log(values))}
@@ -326,15 +331,15 @@ const Categories: CustomNextPage = () => {
             visible={patchCategoryLoading ? true : false}
           />
           <TextInput
-            placeholder='Category name'
-            label='Category name'
+            placeholder="Category name"
+            label="Category name"
             withAsterisk
-            mb='1rem'
+            mb="1rem"
             {...PatchCategoryForm.getInputProps("name")}
           />
-          <Group mt='1.5rem'>
+          <Group mt="1.5rem">
             <Button
-              type='submit'
+              type="submit"
               onClick={() => {
                 patchCategory(
                   {
@@ -350,15 +355,15 @@ const Categories: CustomNextPage = () => {
                 );
               }}
             >
-              Change Details
+              Save
             </Button>
             <Button
-              color={"red"}
+              variant="light"
               onClick={() => {
                 setChangeModal(false);
               }}
             >
-              Exit
+              Cancel
             </Button>
           </Group>
         </form>

@@ -1,19 +1,18 @@
 import {
   AppShell,
   Header,
-  Text,
   MediaQuery,
   Burger,
   useMantineTheme,
+  Text,
+  Box,
 } from "@mantine/core";
 import Nav from "./Navbar";
 import { useState } from "react";
-import { useSession } from "next-auth/react";
 
 const PageLayout = ({ children }: any) => {
   const theme = useMantineTheme();
   const [opened, setOpened] = useState(false);
-  const { status } = useSession();
 
   return (
     <AppShell
@@ -21,14 +20,29 @@ const PageLayout = ({ children }: any) => {
         main: {
           background:
             theme.colorScheme === "dark"
-              ? theme.colors.dark[8]
-              : theme.colors.gray[0],
+              ? "var(--bg)"
+              : "var(--bg)",
+          minHeight: "100vh",
         },
       }}
       navbarOffsetBreakpoint='sm'
       navbar={<Nav opened={opened} hiddenBreakpoint='sm' />}
       header={
-        <Header height={70} p='md'>
+        <Header
+          height={56}
+          p='md'
+          sx={{
+            background:
+              theme.colorScheme === "dark"
+                ? "var(--nav-bg)"
+                : "var(--nav-bg)",
+            borderBottom: `1px solid ${
+              theme.colorScheme === "dark"
+                ? theme.colors.dark[4]
+                : theme.colors.gray[2]
+            }`,
+          }}
+        >
           <div
             style={{ display: "flex", alignItems: "center", height: "100%" }}
           >
@@ -42,12 +56,18 @@ const PageLayout = ({ children }: any) => {
               />
             </MediaQuery>
 
-            <Text>Next Inventory</Text>
+            <Text
+              size='sm'
+              color='dimmed'
+              sx={{ fontFamily: "JetBrains Mono, monospace" }}
+            >
+              _ / dashboard
+            </Text>
           </div>
         </Header>
       }
     >
-      {children}
+      <Box sx={{ padding: "1rem", "@media (min-width: 768px)": { padding: "2rem" } }}>{children}</Box>
     </AppShell>
   );
 };

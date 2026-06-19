@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { CustomNextPage } from "../types/CustomNextPage";
 import {
   Group,
-  ThemeIcon,
   Title,
   Grid,
   Text,
@@ -10,7 +9,6 @@ import {
   Paper,
   Stack,
   Autocomplete,
-  Select,
   Button,
   Modal,
   NumberInput,
@@ -20,6 +18,7 @@ import {
   TextInput,
   Textarea,
   Center,
+  Select,
 } from "@mantine/core";
 import { useForm, zodResolver } from "@mantine/form";
 import { TbClipboardList } from "react-icons/tb";
@@ -52,7 +51,6 @@ const Products: CustomNextPage = () => {
     "name" | "price" | "quantity" | null | string
   >("name");
 
-  //Set select data for search
   useEffect(() => {
     if (Array.isArray(products)) {
       products.map((prod) =>
@@ -61,7 +59,7 @@ const Products: CustomNextPage = () => {
     }
     setFilteredProducts(products);
   }, [products]);
-  //Filter Products by Name
+
   useEffect(() => {
     if (autoCompleteValue && products) {
       setFilteredProducts((products) =>
@@ -72,16 +70,13 @@ const Products: CustomNextPage = () => {
     } else {
       setFilteredProducts(products);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoCompleteValue, sortBy]);
 
-  //GET SELECTED PRODUCT ID BY PRESSING THE BUTTON
   const [selectedProductId, setSelectedProductId] =
     useState<ProductsWithDate["id"]>("");
   const [selectedProduct, setSelectedProduct] =
     useState<ProductsWithDate["name"]>("");
 
-  //MODAL STATE
   const [postProductModal, setPostModalProduct] = useState(false);
   const [deleteProductModal, setDeleteProductModal] = useState(false);
   const [patchProductModal, setPatchProductModal] = useState(false);
@@ -105,7 +100,6 @@ const Products: CustomNextPage = () => {
     },
   });
 
-  //GET CATEGORIES ID
   const { data: categories, isLoading: categoriesLoading } =
     useGetCategoriesId();
 
@@ -114,7 +108,6 @@ const Products: CustomNextPage = () => {
     label: string;
   }
 
-  //SET DATA OF SELECT CATEGORY
   const [selectCategory, setSelectCategory] = useState<selectCategory[]>([]);
   useEffect(() => {
     if (categories) {
@@ -128,11 +121,9 @@ const Products: CustomNextPage = () => {
     }
   }, [categories]);
 
-  //POST PRODUCT MUTATION
   const { mutate: postProduct, isLoading: postProductLoading } =
     usePostProduct();
 
-  //DELETE PRODUCT MUTATION
   const { mutate: deleteProduct, isLoading: deleteProductLoading } =
     useDeleteProduct();
 
@@ -141,17 +132,27 @@ const Products: CustomNextPage = () => {
 
   return (
     <main>
-      {/* TITLE */}
-      <Group align="center" mb={"3rem"}>
-        <Title size="1.5rem" weight="500">
+      <Box mb="xl">
+        <Text
+          size="xs"
+          color="dimmed"
+          sx={{ fontFamily: "JetBrains Mono, monospace", textTransform: "uppercase", letterSpacing: "0.05em" }}
+          mb={4}
+        >
+          Catalog
+        </Text>
+        <Title
+          order={2}
+          sx={{
+            fontFamily: "Archivo, sans-serif",
+            fontWeight: 700,
+            letterSpacing: "-0.02em",
+          }}
+        >
           Your Products
         </Title>
-        <ThemeIcon variant="light" color="grape" size="md">
-          <TbClipboardList size={22} />
-        </ThemeIcon>
-      </Group>
+      </Box>
 
-      {/* SEARCH BAR */}
       <Group align="center" mb="1.5rem">
         <Autocomplete
           data={autoCompleteOption}
@@ -167,7 +168,6 @@ const Products: CustomNextPage = () => {
         />
       </Group>
 
-      {/* NO PRODUCTS */}
       {products?.length === 0 && !productsLoading && (
         <Group align="center">
           <Text size={"lg"}>No Products</Text>
@@ -178,127 +178,129 @@ const Products: CustomNextPage = () => {
         </Group>
       )}
 
-      {/* PRODUCTS */}
       <Skeleton
         visible={productsLoading}
         sx={{ minHeight: products?.length === 0 ? "0px" : "150px" }}
       >
         <Grid grow gutter="sm" sx={{ height: "100%" }}>
-          {Array.isArray(filteredProducts) && filteredProducts.map((product) => {
-            return (
-              <Col
-                span={3}
-                order={2}
-                orderSm={1}
-                orderLg={3}
-                key={product.id}
-                sx={{
-                  minWidth: "340px",
-                  "@media (max-width: 350px)": {
-                    minWidth: "100%",
-                  },
-                }}
-              >
-                <Paper
-                  p="xl"
-                  shadow={"lg"}
+          {Array.isArray(filteredProducts) &&
+            filteredProducts.map((product) => {
+              return (
+                <Col
+                  span={3}
+                  order={2}
+                  orderSm={1}
+                  orderLg={3}
+                  key={product.id}
                   sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "100%",
+                    minWidth: "340px",
+                    "@media (max-width: 350px)": {
+                      minWidth: "100%",
+                    },
                   }}
                 >
-                  <Title order={3}>{product.name}</Title>
-                  <Title
-                    order={5}
-                    weight="400"
-                    mb={"sm"}
-                    color="gray"
-                    variant="text"
-                    sx={(theme) => ({
-                      color:
-                        theme.colorScheme === "dark"
-                          ? theme.colors.dark[0]
-                          : theme.colors.gray[6],
-                    })}
+                  <Paper
+                    p="xl"
+                    shadow="sm"
+                    withBorder
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      height: "100%",
+                      backgroundColor: "var(--surface)",
+                      borderColor: "var(--border)",
+                    }}
                   >
-                    {product.category.name}
-                  </Title>
-                  <Text
-                    sx={(theme) => ({
-                      color:
-                        theme.colorScheme === "dark"
-                          ? theme.colors.dark[1]
-                          : theme.colors.gray[9],
-                    })}
-                    mt={"sm"}
-                    mb={"sm"}
-                  >
-                    {product.description}
-                  </Text>
-                  <Group
-                    spacing="md"
-                    noWrap
-                    mb="1.5rem"
-                    sx={{ height: "100%" }}
-                  >
-                    <Stack sx={{ width: "100%", alignSelf: "flex-end" }}>
-                      <Text>Current Price</Text>
-                      <Text>{product.price}$</Text>
-                    </Stack>
-                    <Stack sx={{ width: "100%", alignSelf: "flex-end" }}>
-                      <Text>Current Stock</Text>
-                      <Text>
-                        {product?.date[0] ? product?.date[0]?.stock : "0"}
-                      </Text>
-                    </Stack>
-                  </Group>
-                  <Group>
-                    <Button
-                      color="blue"
-                      onClick={() => {
-                        setPatchProductModal(true);
-                        patchProductForm.setValues({
-                          id: product.id,
-                          name: product.name,
-                          price: product.price,
-                          description: product.description ?? "",
-                          categoryId: product.categoryId,
-                        });
+                    <Title
+                      order={3}
+                      sx={{
+                        fontFamily: "Archivo, sans-serif",
+                        fontWeight: 700,
                       }}
                     >
-                      Change Details
-                    </Button>
-                    <Button
-                      color="red"
-                      onClick={() => {
-                        setDeleteProductModal(true);
-                        setSelectedProductId(product.id);
-                        setSelectedProduct(product.name);
-                      }}
+                      {product.name}
+                    </Title>
+                    <Text
+                      size="sm"
+                      color="dimmed"
+                      mb="sm"
+                      sx={{ fontFamily: "JetBrains Mono, monospace" }}
                     >
-                      Delete
-                    </Button>
-                  </Group>
-                </Paper>
-              </Col>
-            );
-          })}
+                      {product.category.name}
+                    </Text>
+                    <Text size="sm" color="dimmed" mt="sm" mb="sm" lineClamp={2}>
+                      {product.description}
+                    </Text>
+                    <Group
+                      spacing="md"
+                      noWrap
+                      mb="1.5rem"
+                      sx={{ height: "100%" }}
+                    >
+                      <Stack sx={{ width: "100%", alignSelf: "flex-end" }} spacing={2}>
+                        <Text size="xs" color="dimmed">Price</Text>
+                        <Text weight={600} sx={{ fontFamily: "JetBrains Mono, monospace" }}>
+                          ${product.price.toFixed(2)}
+                        </Text>
+                      </Stack>
+                      <Stack sx={{ width: "100%", alignSelf: "flex-end" }} spacing={2}>
+                        <Text size="xs" color="dimmed">Stock</Text>
+                        <Text weight={600} sx={{ fontFamily: "JetBrains Mono, monospace" }}>
+                          {product?.date[0] ? product?.date[0]?.stock : "0"}
+                        </Text>
+                      </Stack>
+                    </Group>
+                    <Group>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setPatchProductModal(true);
+                          patchProductForm.setValues({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            description: product.description ?? "",
+                            categoryId: product.categoryId,
+                          });
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="light"
+                        color="red"
+                        onClick={() => {
+                          setDeleteProductModal(true);
+                          setSelectedProductId(product.id);
+                          setSelectedProduct(product.name);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </Group>
+                  </Paper>
+                </Col>
+              );
+            })}
         </Grid>
       </Skeleton>
-      {/*ACTIONS FOR CREATING PRODUCT  */}
+
       <Box mt="3rem">
-        <Button variant={"outline"} onClick={() => setPostModalProduct(true)}>
+        <Button
+          variant="outline"
+          onClick={() => setPostModalProduct(true)}
+          leftIcon={<TbClipboardList size={16} />}
+        >
           Create Product
         </Button>
       </Box>
 
-      {/* CREATE MODAL */}
       <Modal
         onClose={() => setPostModalProduct(false)}
         opened={postProductModal}
         centered
-        title="Product Creation Modal"
+        title="New Product"
       >
         <form
           onSubmit={postProductForm.onSubmit((values) => {
@@ -354,22 +356,19 @@ const Products: CustomNextPage = () => {
             {...postProductForm.getInputProps("categoryId")}
           />
           <Group>
-            <Button color="blue" type="submit">
-              Create Product
-            </Button>
-            <Button color="red" onClick={() => setPostModalProduct(false)}>
-              Exit
+            <Button type="submit">Create</Button>
+            <Button variant="light" onClick={() => setPostModalProduct(false)}>
+              Cancel
             </Button>
           </Group>
         </form>
       </Modal>
 
-      {/* DELETE PRODUCT MODAL */}
       <Modal
         onClose={() => setDeleteProductModal(false)}
         opened={deleteProductModal}
         centered
-        title="Product Deletion"
+        title="Delete Product"
       >
         <form
           onSubmit={(e) => {
@@ -386,28 +385,30 @@ const Products: CustomNextPage = () => {
           <Text align="center" color="red" size="md">
             Are you sure you want to delete
           </Text>
-          <Text mb="xl" align="center" weight="600">
+          <Text mb="xl" align="center" weight={600}>
             {selectedProduct}?
           </Text>
           <Center>
             <Group>
               <Button color="red" type={"submit"}>
-                Delete Product
+                Delete
               </Button>
-              <Button color="blue" onClick={() => setDeleteProductModal(false)}>
-                Exit
+              <Button
+                variant="light"
+                onClick={() => setDeleteProductModal(false)}
+              >
+                Cancel
               </Button>
             </Group>
           </Center>
         </form>
       </Modal>
 
-      {/* PATCH PRODUCT MODAL */}
       <Modal
         onClose={() => setPatchProductModal(false)}
         opened={patchProductModal}
         centered
-        title="Product Update"
+        title="Edit Product"
       >
         <form
           onSubmit={patchProductForm.onSubmit(() => {
@@ -460,9 +461,9 @@ const Products: CustomNextPage = () => {
             {...patchProductForm.getInputProps("categoryId")}
           />
           <Group>
-            <Button type="submit">Change Details</Button>
-            <Button color="red" onClick={() => setPatchProductModal(false)}>
-              Exit
+            <Button type="submit">Save</Button>
+            <Button variant="light" onClick={() => setPatchProductModal(false)}>
+              Cancel
             </Button>
           </Group>
         </form>
